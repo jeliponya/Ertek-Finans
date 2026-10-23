@@ -1006,11 +1006,11 @@ function rCek(){
     <div class="dash-kpi"><div class="dash-kpi-label">Toplam Bekleyen</div><div class="dash-kpi-val">${D.cekler.filter(c=>!c.done).length} adet</div><div class="dash-kpi-sub">${fmt(hesapBek+emanetBek)} ₺</div></div>
     <div class="dash-kpi"><div class="dash-kpi-label">Tamamlanan</div><div class="dash-kpi-val" style="color:var(--muted2)">${D.cekler.filter(c=>c.done).length} adet</div></div>
   `;
-  let list=[...D.cekler].sort((a,b)=>new Date(a.vade)-new Date(b.vade));
+  // done:true olanlar eski veri kalıntısı — yeni kodda ödeyince siliniyor, eski kayıtları da gizle
+  let list=[...D.cekler].filter(c=>!c.done).sort((a,b)=>new Date(a.vade)-new Date(b.vade));
   if(cekF==='hesap')list=list.filter(c=>c.tip==='HESAP');
   else if(cekF==='emanet')list=list.filter(c=>c.tip==='EMANET');
   else if(cekF==='bekleyen')list=list.filter(c=>!c.done);
-  else if(cekF==='biten')list=list.filter(c=>c.done);
   const el=document.getElementById('cekList');
   if(!list.length){el.innerHTML='<div class="empty">Bu filtrede çek yok.</div>';return;}
   el.innerHTML=list.map(c=>{
