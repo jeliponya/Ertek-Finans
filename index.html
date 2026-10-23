@@ -298,11 +298,8 @@ main{margin-left:0;padding:14px 12px 95px;}
   </div>
   <div class="grid4 mb20" id="cekStats"></div>
   <div class="ftabs">
-    <div class="ftab active" onclick="setCekF('hepsi',this)">Hepsi</div>
-    <div class="ftab" onclick="setCekF('hesap',this)">💰 Hesap</div>
-    <div class="ftab" onclick="setCekF('emanet',this)">🤝 Emanet</div>
-    <div class="ftab" onclick="setCekF('bekleyen',this)">⏳ Bekleyen</div>
-    <div class="ftab" onclick="setCekF('biten',this)">✅ Tamamlanan</div>
+    <div class="ftab active" onclick="setCekF('alinan',this)">📥 Alınan Çekler</div>
+    <div class="ftab" onclick="setCekF('verilen',this)">📤 Verilen Çekler</div>
   </div>
   <div id="cekList"></div>
 </div>
@@ -995,27 +992,25 @@ function rKK(){
   }).join('')}`;
 }
 
-let cekF='hepsi';
+let cekF='alinan';
 function setCekF(f,btn){cekF=f;document.querySelectorAll('.ftab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');rCek();}
 function rCek(){
-  const hesapBek=D.cekler.filter(c=>c.tip==='HESAP'&&!c.done).reduce((s,c)=>s+c.tutar,0);
-  const emanetBek=D.cekler.filter(c=>c.tip==='EMANET'&&!c.done).reduce((s,c)=>s+c.tutar,0);
+  const alinanToplam=D.cekler.filter(c=>c.tur==='alinan'&&!c.done).reduce((s,c)=>s+c.tutar,0);
+  const verilenToplam=D.cekler.filter(c=>c.tur==='verilen'&&!c.done).reduce((s,c)=>s+c.tutar,0);
   document.getElementById('cekStats').innerHTML=`
-    <div class="dash-kpi"><div class="dash-kpi-label">💰 Hesap Çeki</div><div class="dash-kpi-val pos">${fmt(hesapBek)} ₺</div><div class="dash-kpi-sub">${D.cekler.filter(c=>c.tip==='HESAP'&&!c.done).length} adet</div></div>
-    <div class="dash-kpi"><div class="dash-kpi-label">🤝 Emanet Çeki</div><div class="dash-kpi-val" style="color:var(--orange)">${fmt(emanetBek)} ₺</div><div class="dash-kpi-sub">${D.cekler.filter(c=>c.tip==='EMANET'&&!c.done).length} adet</div></div>
-    <div class="dash-kpi"><div class="dash-kpi-label">Toplam Bekleyen</div><div class="dash-kpi-val">${D.cekler.filter(c=>!c.done).length} adet</div><div class="dash-kpi-sub">${fmt(hesapBek+emanetBek)} ₺</div></div>
-    <div class="dash-kpi"><div class="dash-kpi-label">Tamamlanan</div><div class="dash-kpi-val" style="color:var(--muted2)">${D.cekler.filter(c=>c.done).length} adet</div></div>
+    <div class="dash-kpi"><div class="dash-kpi-label">📥 Alınan Çekler</div><div class="dash-kpi-val pos">${fmt(alinanToplam)} ₺</div><div class="dash-kpi-sub">${D.cekler.filter(c=>c.tur==='alinan'&&!c.done).length} adet</div></div>
+    <div class="dash-kpi"><div class="dash-kpi-label">📤 Verilen Çekler</div><div class="dash-kpi-val neg">${fmt(verilenToplam)} ₺</div><div class="dash-kpi-sub">${D.cekler.filter(c=>c.tur==='verilen'&&!c.done).length} adet</div></div>
+    <div class="dash-kpi"><div class="dash-kpi-label">Net Çek Pozisyonu</div><div class="dash-kpi-val" style="color:${alinanToplam-verilenToplam>=0?'var(--green)':'var(--red)'}">${fmt(alinanToplam-verilenToplam)} ₺</div><div class="dash-kpi-sub">Alınan − Verilen</div></div>
   `;
   // done:true olanlar eski veri kalıntısı — yeni kodda ödeyince siliniyor, eski kayıtları da gizle
   let list=[...D.cekler].filter(c=>!c.done).sort((a,b)=>new Date(a.vade)-new Date(b.vade));
-  if(cekF==='hesap')list=list.filter(c=>c.tip==='HESAP');
-  else if(cekF==='emanet')list=list.filter(c=>c.tip==='EMANET');
-  else if(cekF==='bekleyen')list=list.filter(c=>!c.done);
+  if(cekF==='alinan')list=list.filter(c=>c.tur==='alinan');
+  else if(cekF==='verilen')list=list.filter(c=>c.tur==='verilen');
   const el=document.getElementById('cekList');
   if(!list.length){el.innerHTML='<div class="empty">Bu filtrede çek yok.</div>';return;}
   el.innerHTML=list.map(c=>{
     const isHesap=c.tip==='HESAP',isAl=c.tur==='alinan',days=daysUntil(c.vade);
-    const renk=c.done?'var(--muted)':isHesap?'var(--green)':'var(--orange)';
+    const renk=c.done?'var(--muted)':isAl?'var(--green)':'var(--red)';
     return`<div class="cek-card ${c.done?'done':''}">
       <div class="cek-stripe" style="background:${renk}"></div>
       <div style="font-size:18px">${isHesap?'💰':'🤝'}</div>
