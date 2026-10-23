@@ -768,10 +768,10 @@ function hareketGeriAl(id){
     if(!zaten)D.kredi.push({...h.meta.krediSnapshot});
   }
 
-  // ✅ Çek tahsil/ödeme geri alınırsa → çeki done=false yap
-  if((h.tip==='cek_tahsil'||h.tip==='banka_odeme')&&h.meta&&h.meta.cekId){
-    const c=D.cekler.find(x=>x.id===h.meta.cekId);
-    if(c){c.done=false;c.doneDate=null;}
+  // Çek tahsil/ödeme geri alınırsa → çeki listeden geri yükle
+  if((h.tip==='cek_tahsil'||h.tip==='banka_odeme'||h.tip==='diger')&&h.meta&&h.meta.cekSnapshot){
+    const zaten=D.cekler.find(x=>x.id===h.meta.cekId);
+    if(!zaten)D.cekler.push({...h.meta.cekSnapshot});
   }
 
   D.hareketler=D.hareketler.filter(x=>x.id!==id);
@@ -1185,12 +1185,13 @@ function bsecOnayla(){
 
   } else if(tip==='cek'){
     const c=D.cekler.find(x=>x.id===refid);
-    c.done=true;c.doneDate=todayStr();
+    const cekSnapshot={...c};
     const ht=c.tur==='alinan'?'cek_tahsil':'banka_odeme';
     const kaynakH=c.tur==='alinan'?null:bankaId;
     const hedefH=c.tur==='alinan'?bankaId:null;
-    // meta ile çek id kaydediyoruz
-    hareketEkle({tip:ht,kaynak:kaynakH,hedef:hedefH,tutar:c.tutar,aciklama:acik,meta:{cekId:refid}});
+    // Çek ödendi → listeden sil, geri alma için snapshot sakla
+    D.cekler=D.cekler.filter(x=>x.id!==refid);
+    hareketEkle({tip:ht,kaynak:kaynakH,hedef:hedefH,tutar:c.tutar,aciklama:acik,meta:{cekId:refid,cekSnapshot}});
     saveAll();closeModal('bsec');showToast(c.tur==='alinan'?'Tahsil edildi ✓':'Ödendi ✓');renderAll();
   }
 }
@@ -1211,8 +1212,9 @@ function cekDone(id){
   const c=D.cekler.find(x=>x.id===id);
   if(c.tip==='EMANET'){
     if(!confirm(`EMANET ÇEK\n${c.kisi} – ${fmt(c.tutar)} ₺\nKasa bakiyenizi etkilemez. Kapat?`))return;
-    c.done=true;c.doneDate=todayStr();
-    D.hareketler.unshift({id:uid(),tip:'diger',kaynak:null,hedef:null,tutar:c.tutar,aciklama:`Emanet çek kapandı: ${c.kisi}`,tarih:new Date().toISOString(),created_at:new Date().toISOString(),meta:{cekId:id}});
+    const cekSnapshot={...c};
+    D.cekler=D.cekler.filter(x=>x.id!==id);
+    D.hareketler.unshift({id:uid(),tip:'diger',kaynak:null,hedef:null,tutar:c.tutar,aciklama:`Emanet çek kapandı: ${c.kisi}`,tarih:new Date().toISOString(),created_at:new Date().toISOString(),meta:{cekId:id,cekSnapshot}});
     saveAll();showToast('Emanet çek kapatıldı ✓');renderAll();return;
   }
   if(!D.banka.length){showToast('Önce banka hesabı ekleyin',true);return;}
