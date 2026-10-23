@@ -687,16 +687,31 @@ function parseExcelNum(v){
   return parseFloat(String(v||'').replace(/\./g,'').replace(',','.').replace(/[^0-9.]/g,''))||0;
 }
 function readExcel(file,cb){
-  const r=new FileReader();
-  r.onload=e=>{
-    try{
-      const wb=XLSX.read(new Uint8Array(e.target.result),{type:'array',cellDates:true});
-      const ws=wb.Sheets[wb.SheetNames[0]];
-      const rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});
-      cb(null,rows);
-    }catch(err){cb(err,null);}
-  };
-  r.readAsArrayBuffer(file);
+  const isCsv=file.name.toLowerCase().endsWith('.csv');
+  if(isCsv){
+    // CSV için UTF-8 olarak oku — Türkçe karakter bozulmasını önler
+    const r=new FileReader();
+    r.onload=e=>{
+      try{
+        const wb=XLSX.read(e.target.result,{type:'string',cellDates:true});
+        const ws=wb.Sheets[wb.SheetNames[0]];
+        const rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});
+        cb(null,rows);
+      }catch(err){cb(err,null);}
+    };
+    r.readAsText(file,'UTF-8');
+  } else {
+    const r=new FileReader();
+    r.onload=e=>{
+      try{
+        const wb=XLSX.read(new Uint8Array(e.target.result),{type:'array',cellDates:true});
+        const ws=wb.Sheets[wb.SheetNames[0]];
+        const rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});
+        cb(null,rows);
+      }catch(err){cb(err,null);}
+    };
+    r.readAsArrayBuffer(file);
+  }
 }
 
 // ══════════════════════════════════════════
