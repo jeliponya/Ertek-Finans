@@ -838,7 +838,9 @@ function rDash(){
   const tK=D.kredi.reduce((s,k)=>s+k.kalan,0);
   const tKKK=D.kk.reduce((s,k)=>s+k.kullanilan,0);
   const tKKL=D.kk.reduce((s,k)=>s+k.limit,0);
-  const cAl=D.cekler.filter(c=>c.tip==='HESAP'&&!c.done).reduce((s,c)=>s+c.tutar,0);
+  const cAlHesap=D.cekler.filter(c=>c.tip==='HESAP'&&c.tur==='alinan'&&!c.done).reduce((s,c)=>s+c.tutar,0);
+  const cVrHesap=D.cekler.filter(c=>c.tip==='HESAP'&&c.tur==='verilen'&&!c.done).reduce((s,c)=>s+c.tutar,0);
+  const cNetHesap=cAlHesap-cVrHesap;
   const cEmanet=D.cekler.filter(c=>c.tip==='EMANET'&&!c.done).reduce((s,c)=>s+c.tutar,0);
   const net=tN+tB-tK-tKKK;
   const now=new Date();
@@ -849,7 +851,7 @@ function rDash(){
     <div class="dash-kpi"><div class="dash-kpi-label">Banka Bakiyesi</div><div class="dash-kpi-val" style="color:var(--blue)">${fmt(tB)} ₺</div><div class="dash-kpi-sub">${D.banka.length} hesap</div></div>
     <div class="dash-kpi"><div class="dash-kpi-label">Kredi Borcu</div><div class="dash-kpi-val neg">${fmt(tK)} ₺</div><div class="dash-kpi-sub">${D.kredi.length} taksit</div></div>
     <div class="dash-kpi"><div class="dash-kpi-label">KK Kullanım</div><div class="dash-kpi-val warn">${fmt(tKKK)} ₺</div><div class="dash-kpi-sub">${fmt(tKKL-tKKK)} ₺ boş</div></div>
-    <div class="dash-kpi"><div class="dash-kpi-label">💰 Hesap Çeki</div><div class="dash-kpi-val pos">${fmt(cAl)} ₺</div><div class="dash-kpi-sub">gerçek alacak</div></div>
+    <div class="dash-kpi"><div class="dash-kpi-label">💰 Net Çek</div><div class="dash-kpi-val" style="color:${cNetHesap>=0?'var(--green)':'var(--red)'}">${fmt(cNetHesap)} ₺</div><div class="dash-kpi-sub">Alınan ${fmt(cAlHesap)} − Verilen ${fmt(cVrHesap)}</div></div>
     <div class="dash-kpi"><div class="dash-kpi-label">🤝 Emanet Çeki</div><div class="dash-kpi-val" style="color:var(--orange)">${fmt(cEmanet)} ₺</div><div class="dash-kpi-sub">kasa etkilenmez</div></div>
     <div class="dash-kpi"><div class="dash-kpi-label">Net Pozisyon</div><div class="dash-kpi-val" style="color:${net>=0?'var(--green)':'var(--red)'}">${fmt(net)} ₺</div><div class="dash-kpi-sub">Nakit+Banka−Kredi−KK</div></div>
     <div class="dash-kpi" style="border-color:color-mix(in srgb,var(--orange) 40%,transparent)"><div class="dash-kpi-label">📅 Bu Ay Ödemeler</div><div class="dash-kpi-val warn">${fmt(buAyToplam)} ₺</div><div class="dash-kpi-sub">${buAyList.length} taksit · ${now.toLocaleDateString('tr-TR',{month:'long',year:'numeric'})}</div></div>
