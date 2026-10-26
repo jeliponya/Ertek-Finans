@@ -407,8 +407,7 @@ main{margin-left:0;padding:14px 12px 95px;}
     <div class="frow"><label>Aylık Taksit (TL)</label><input type="number" id="k-taksit" placeholder="0.00"></div>
   </div>
   <div class="frow2">
-    <div class="frow"><label>Sonraki Ödeme</label><input type="date" id="k-tarih"></div>
-    <div class="frow"><label>Faiz (%)</label><input type="number" id="k-faiz" step="0.01" placeholder="4.50"></div>
+    <div class="frow"><label>Ödeme Tarihi</label><input type="date" id="k-tarih"></div>
   </div>
   <div class="frow"><label>Not</label><input id="k-not"></div>
   <div class="btn-row"><button class="btn btn-outline" onclick="closeModal('kredi')">İptal</button><button class="btn btn-gold" onclick="saveKredi()">Kaydet</button></div>
@@ -956,13 +955,12 @@ function rKredi(){
     <div class="stat-card" style="flex:1;min-width:130px;border-color:color-mix(in srgb,var(--orange) 40%,transparent)"><div class="stat-label">📅 Bu Ay</div><div class="stat-val warn">${fmt(buAyToplam)} ₺</div><div class="stat-sub">${buAyList.length} taksit · ${now.toLocaleDateString('tr-TR',{month:'long'})}</div></div>
   </div>
   <div class="card"><table class="tbl">
-    <tr><th>Banka</th><th>Şirket</th><th>Kredi</th><th>Kalan Borç</th><th>Faiz</th><th>Sonraki Ödeme</th><th>Gün</th><th></th></tr>
+    <tr><th>Banka</th><th>Şirket</th><th>Kredi</th><th>Kalan Borç</th><th>Ödeme Tarihi</th><th>Gün</th><th></th></tr>
     ${D.kredi.sort((a,b)=>daysUntil(a.tarih)-daysUntil(b.tarih)).map(k=>`<tr>
       <td><b>${k.banka}</b></td>
       <td><span class="badge bg-gold">${k.sirket}</span></td>
       <td>${k.adi}${k.not&&k.not!=='Excel import'?`<br><span style="font-size:10px;color:var(--muted2)">${k.not}</span>`:''}</td>
       <td class="mono neg">${fmt(k.kalan)} ₺</td>
-      <td style="color:var(--muted2)">${k.faiz?'%'+k.faiz:'-'}</td>
       <td class="mono" style="font-size:11px">${k.tarih}</td>
       <td>${cdBadge(daysUntil(k.tarih))}</td>
       <td><div style="display:flex;gap:4px"><button class="tb ok" onclick="odeme('${k.id}')">Ödendi</button><button class="tb del" onclick="delKredi('${k.id}')">Sil</button></div></td>
