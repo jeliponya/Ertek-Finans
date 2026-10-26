@@ -1387,7 +1387,16 @@ function saveNH(){
 
 // AYARLAR
 function resetAll(){if(!confirm('TÜM VERİLER SİLİNECEK!'))return;if(!confirm('Son kez: Geri alınamaz!'))return;localStorage.removeItem(SK);D=defData();saveLocal();renderAll();showToast('Sıfırlandı');}
-function exportJSON(){const a=document.createElement('a');a.href='data:application/json,'+encodeURIComponent(JSON.stringify(D,null,2));a.download='ertek-yedek-'+todayStr()+'.json';a.click();}
+function exportJSON(){
+  const data=JSON.stringify(D,null,2);
+  const fname='ertek-yedek-'+todayStr()+'.json';
+  if(navigator.share&&navigator.canShare){
+    const blob=new Blob([data],{type:'application/json'});
+    const file=new File([blob],fname,{type:'application/json'});
+    if(navigator.canShare({files:[file]})){navigator.share({files:[file],title:'Ertek Finans Yedek'}).catch(()=>{});return;}
+  }
+  const a=document.createElement('a');a.href='data:application/json,'+encodeURIComponent(data);a.download=fname;a.click();
+}
 function importJSON(inp){const f=inp.files[0];if(!f)return;const r=new FileReader();r.onload=e=>{try{D={...defData(),...JSON.parse(e.target.result)};saveAll();renderAll();showToast('Yüklendi ✓');}catch{showToast('Geçersiz dosya',true);}};r.readAsText(f);inp.value='';}
 
 // MODAL
