@@ -1410,20 +1410,10 @@ document.querySelectorAll('.modal-overlay').forEach(m=>{m.addEventListener('clic
 
 function showToast(msg,isErr=false,isWarn=false){const t=document.getElementById('toast');t.textContent=msg;t.className='toast'+(isErr?' err':isWarn?' warn':'');t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2800);}
 
-// SEED: Türkiye Finans 4359428-1043 (Ertek Tavukçuluk, 2.11.2026)
-function seedTF4359428(){
-  const SID='tf-4359428-1043';
-  if(!D.kredi.find(k=>k.id===SID)){
-    D.kredi.push({id:SID,banka:'Türkiye Finans',sirket:'Ertek Tavukçuluk',adi:'Finansman 4359428-1043',kalan:2900000,taksit:550511.10,tarih:'2026-12-02',faiz:'3.67',not:'Fin.No:487758 | 6 taksit | Kullandırım ücreti: 15.394,30 TL'});
-    saveAll();
-  }
-}
-
 // INIT
 document.getElementById('todayBadge').textContent=new Date().toLocaleDateString('tr-TR',{weekday:'short',day:'numeric',month:'long',year:'numeric'});
 setSyncStatus('syncing');
-cloudPull().then(()=>{seedTF4359428();renderAll();}).catch(()=>setSyncStatus('err'));
-seedTF4359428();
+cloudPull().then(()=>{renderAll();}).catch(()=>setSyncStatus('err'));
 renderAll();
 </script>
 </body>
